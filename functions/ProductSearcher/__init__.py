@@ -1,7 +1,7 @@
 import logging
 import json
 import azure.functions as func
-from scraper import scrape_amazon
+from shared_code import scraper
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -17,7 +17,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             productTitle = req_body.get('productTitle')
 
     if productTitle:
-        return func.HttpResponse(json.dumps(scrape_amazon(productTitle)), mimetype='application/json')
+        return func.HttpResponse(json.dumps(scraper.scrape_amazon(productTitle)), mimetype='application/json')
     else:
         return func.HttpResponse(
              "Http Triggered function executed. No parameters passed, please pass a product title in the query string or body request",
