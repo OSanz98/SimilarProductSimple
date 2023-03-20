@@ -105,7 +105,7 @@ const HomeRoute = () => {
                     </Box>
                 </Container>
             )}
-            {similarProducts.length > 0 && !isCreating && (
+            {similarProducts.length > 0 && !isCreating && !inProgress && (
                 <CustomDataGrid similarProducts={similarProducts}/>
             )}
             
