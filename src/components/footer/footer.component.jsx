@@ -1,28 +1,40 @@
-import { Box, Typography, Link } from "@mui/material";
+import { Box, Typography, Link, Divider } from "@mui/material";
 
-const footer = () => {
+const Footer = () => {
     return(
-        <Box sx={{bgcolor: 'background.paper', p: 6, position: 'absolute', bottom: 0, width: '100%', alignItems: 'center' }} component="footer">
-            <Typography
-                variant="h6" align="center" gutterBottom
-            >
-                Similar Product Website Scraper
-            </Typography>
-            <Typography
-                variant="subtitle1" align="center" color="text.secondary" component="p"
-            >
-                Developed By Oscar Sanz
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-                {'Copyright © '}
-                <Link color="inherit" href="">
-                    My website
-                </Link>{' '}
-                {new Date().getFullYear()}
-                {'.'}
-            </Typography>
+        <Box 
+            sx={{py: 3,
+                px: 2,
+                mt: 'auto',
+                backgroundColor: (theme) =>
+                theme.palette.mode === 'light'
+                    ? theme.palette.grey[200]
+                    : theme.palette.grey[800],
+            }} 
+            component="footer"
+        >
+                <Divider />
+                <Typography
+                    variant="h6" align="center" gutterBottom marginTop={2}
+                >
+                    Similar Product Website Scraper
+                </Typography>
+                <Typography
+                    variant="subtitle1" align="center" color="text.secondary" component="p"
+                >
+                    Developed By Oscar Sanz
+                </Typography>
+                <Typography variant="body2" color="text.secondary" align="center">
+                    {'Copyright © '}
+                    <Link color="inherit" href="">
+                        My website
+                    </Link>{' '}
+                    {new Date().getFullYear()}
+                    {'.'}
+                </Typography>
+           
         </Box>
     )
 }
 
-export default footer;
+export default Footer;

@@ -6,11 +6,11 @@ import './App.css'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <HomeRoute />,
-    errorElement: <ErrorRoute />,
+    errorElement: <ErrorRoute />
   }
-]);
+])
 
 function App() {
   return(

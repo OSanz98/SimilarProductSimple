@@ -1,60 +1,63 @@
 import {Box, CssBaseline, AppBar, Toolbar, Typography, Button, Container, Link } from "@mui/material";
-import { useImmer } from "use-immer";
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import AddIcon from '@mui/icons-material/Add';
-import { DataGrid } from "@mui/x-data-grid";
-import columns from '../../utils/gridColumns.component';
 import NewProduct from '../../components/newProduct/newProduct.component';
 import LoadingComponent from "../../components/loading/loading.component";
+import CustomDataGrid from "../../components/datagrid/datagrid.component";
+import axios from "axios";
+
 
 const HomeRoute = () => {
-    const [currentProduct, setCurrentProduct] = useImmer({title: "No Product", url: "undefined",  image: "", similarProducts:[]})
-    const [maxWidth, setMaxWidth] = useState('800px');
+    const [productTitle, setProductTitle] = useState('No Product');
+    const [productURL, setProductURL] = useState('undefined');
+    const [similarProducts, setSimilarProducts] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [inProgress, setInProgress] = useState(false);
 
     const handleCreateNewProduct = () => {
         setIsCreating(!isCreating);
-        console.log('button clicked');
     };
 
     const handleBackPage = () => {
         setIsCreating(false);
     };
 
-    const handleNewProduct = (title, url) => {
+    const handleNewProduct = async (title, url) => {
         setInProgress(true);
-        setCurrentProduct(draft => {
-            draft.title = title
-            draft.url = url
-        });
-
-        // call other functionality here
-        setTimeout(() => {
-            setInProgress(false);
-            setIsCreating(false);
-        }, 5000)
+        setProductTitle(title);
+        setProductURL(url);
+        await getProductData(title);
+        setInProgress(false);
+        setIsCreating(false);
     };
-    
-    useLayoutEffect(() => {
-        const handleResize = () => {
-            const windowWidth = window.innerWidth;
-            const newMaxWidth = windowWidth - 100;
-            setMaxWidth(`calc(${newMaxWidth}px)`);
-        };
 
-        handleResize();
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const getProductData = async (title) => {
+        await axios.get('https://similarproductfunction.azurewebsites.net/api/ProductSearcher', {
+            params: {
+                productTitle: title
+            }
+        })
+        .then((response) => {
+            const productArr = Object.entries(response.data).map(([name, product]) => ({
+                id: name,
+                name: name,
+                url: product.url,
+                price: product.price
+            }));
+            setSimilarProducts(productArr);
+        })
+        .catch((err) => {
+            throw new Error('There was a problem with getting similar products: ', err);
+        });
+    }
 
     return(
         <Box
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: '100vh'
+                minHeight: '100vh',
+                width: '100vh'
             }}
         >
             <CssBaseline />
@@ -65,10 +68,9 @@ const HomeRoute = () => {
                     </Typography>
                 </Toolbar>
             </AppBar>
-
             {!isCreating && !inProgress && (
-                <Container component="main" sx={{mt: 8, mb: 2}} maxWidth="sm">
-                    <Box sx={{bgcolor: 'background.paper', pt: 9, pb: 8}}>
+                <Container component="main" sx={{mt: 8}} maxWidth='sm' >
+                    <Box sx={{bgcolor: 'background.paper', pb: 8}}>
                         <Container maxWidth="sm">
                             <Typography
                                 component="h1"
@@ -85,7 +87,7 @@ const HomeRoute = () => {
                                 color="text.secondary"
                                 paragraph
                             >
-                                Currently searched for: {currentProduct.title}
+                                Currently searched for: {productTitle}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -94,18 +96,19 @@ const HomeRoute = () => {
                                 paragraph
                             >
                                 Product URL: 
-                                <Link sx={{ml: 3, maxWidth: '150px'}} rel="noreferrer" target="_blank" href={currentProduct.url}>{currentProduct.url}</Link>
+                                <Link sx={{ml: 3, maxWidth: '150px'}} rel="noreferrer" target="_blank" href={productURL}>{productURL}</Link>
                             </Typography>
                             <Button onClick={handleCreateNewProduct} aria-label="search new product" variant="contained" startIcon={<AddIcon />} sx={{borderRadius: 10, mt: 5}}>
                                 New Product
                             </Button>
                         </Container>
                     </Box>
-                    {currentProduct.similarProducts.length > 0 && (
-                        <DataGrid columns={columns} rows={currentProduct.similarProducts}/>
-                    )}
                 </Container>
             )}
+            {similarProducts.length > 0 && (
+                <CustomDataGrid similarProducts={similarProducts}/>
+            )}
+            
             {isCreating && !inProgress && (
                 <NewProduct goBack={handleBackPage} onClick={handleNewProduct} />
             )}
